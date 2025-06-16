@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SearchHistoryServiceImpl implements SearchHistoryService{
@@ -29,10 +30,14 @@ public class SearchHistoryServiceImpl implements SearchHistoryService{
         searchHistoryRepository.deleteById(searchId);
     }
 
+
     @Override
     public SearchHistory addSearchHistory(Integer userId, String searchQuery) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Optional<SearchHistory> existing = searchHistoryRepository.findByUserAndSearchQuery(user, searchQuery);
+        if (existing.isPresent()) return existing.get();
 
         SearchHistory history = new SearchHistory();
         history.setSearchQuery(searchQuery);
